@@ -23,6 +23,7 @@ namespace Asteroids
 
         private Ship ship;
         private Asteroid asteroid;
+        private Bullet bullet;
 
         public Asteroids()
         {
@@ -57,8 +58,11 @@ namespace Asteroids
             ship = new Ship(10.5f, 0, 0, SPACE_WHITE);
             ship.Initialize(_graphics, basicEffect);
 
-            asteroid = new Asteroid(0, 0, 0, SPACE_WHITE);
-            asteroid.Initialize(8, _graphics, basicEffect);
+            bullet = new Bullet(ship.Position.X, ship.Position.Y, ship.Angle, SPACE_WHITE);
+            bullet.Initialize(_graphics, basicEffect);
+
+            asteroid = new Asteroid(5, 0, 0, 0, SPACE_WHITE);
+            asteroid.Initialize(9, _graphics, basicEffect);
         }
 
         protected override void Update(GameTime gameTime)
@@ -66,6 +70,7 @@ namespace Asteroids
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             ship.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            bullet.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             base.Update(gameTime);
         }
 
@@ -73,11 +78,12 @@ namespace Asteroids
         {
             GraphicsDevice.Clear(SPACE_BLACK);
 
-/*            RasterizerState rasterizerState = new RasterizerState();
+            /*RasterizerState rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;*/
 
             ship.Draw();
+            bullet.Draw();
             asteroid.Draw();
 
             base.Draw(gameTime);
