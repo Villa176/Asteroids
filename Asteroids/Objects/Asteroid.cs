@@ -6,8 +6,10 @@ namespace Asteroids.Objects
 {
     class Asteroid : SpaceObject
     {
-        public Asteroid(float x, float y, float angle, Color color) : base(x, y, angle, color)
+        public float Radius { get; set; }
+        public Asteroid(float radius, float x, float y, float angle, Color color) : base(x, y, angle, color)
         {
+            Radius = radius;
         }
 
         public void Initialize(int vertexCount, GraphicsDeviceManager graphicsDeviceManager, BasicEffect basicEffect)
@@ -16,12 +18,14 @@ namespace Asteroids.Objects
             bEffect = basicEffect;
             VertexCount = vertexCount;
 
+            Random rand = new Random();
+
             float angleIncrement = (2 * MathF.PI) / vertexCount;
             VertexPositionColor[] vertices = new VertexPositionColor[vertexCount + 1];
             for (int i = 0; i < vertexCount + 1; i++)
             {
                 if (i == 0) vertices[i] = new VertexPositionColor(new Vector3(0, 0, 0), Color);
-                else vertices[i] = new VertexPositionColor(new Vector3(-MathF.Sin(angleIncrement * (float)(i - 1)), MathF.Cos(angleIncrement * (float)(i - 1)), 0), Color);
+                else vertices[i] = new VertexPositionColor(new Vector3(-MathF.Sin(angleIncrement * (float)(i - 1)), MathF.Cos(angleIncrement * (float)(i - 1)), 0) * ((float)rand.NextDouble() * Radius + 1f), Color);
             }
             vertexBuffer = new VertexBuffer(gDeviceManager.GraphicsDevice, typeof(VertexPositionColor), vertices.Length, BufferUsage.WriteOnly);
             vertexBuffer.SetData(vertices);
