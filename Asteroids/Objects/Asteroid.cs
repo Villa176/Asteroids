@@ -25,7 +25,7 @@ namespace Asteroids.Objects
             for (int i = 0; i < vertexCount + 1; i++)
             {
                 if (i == 0) vertices[i] = new VertexPositionColor(new Vector3(0, 0, 0), Color);
-                else vertices[i] = new VertexPositionColor(new Vector3(-MathF.Sin(angleIncrement * (float)(i - 1)), MathF.Cos(angleIncrement * (float)(i - 1)), 0) * ((float)rand.NextDouble() * Radius + 1f), Color);
+                else vertices[i] = new VertexPositionColor(new Vector3(-MathF.Sin(angleIncrement * (float)(i - 1)), MathF.Cos(angleIncrement * (float)(i - 1)), 0) * ((float)rand.NextDouble() * 1f + (Radius - 1f)), Color);
             }
             vertexBuffer = new VertexBuffer(gDeviceManager.GraphicsDevice, typeof(VertexPositionColor), vertices.Length, BufferUsage.WriteOnly);
             vertexBuffer.SetData(vertices);
