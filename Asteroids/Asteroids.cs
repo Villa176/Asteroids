@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
 
 namespace Asteroids
 {
@@ -10,6 +11,8 @@ namespace Asteroids
         private readonly GraphicsDeviceManager _graphics;
         BasicEffect basicEffect;
         private SpriteBatch _spriteBatch;
+
+        private SpriteFont font;
 
         private const int WIN_WIDTH = 1200;//1024;
         private const int WIN_HEIGHT = 900;//768;
@@ -23,7 +26,8 @@ namespace Asteroids
 
         private Ship ship;
         private Asteroid asteroid;
-        private Bullet bullet;
+        private List<Bullet> bullets;
+        private bool fire = false;
 
         public Asteroids()
         {
@@ -46,6 +50,7 @@ namespace Asteroids
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            font = Content.Load<SpriteFont>("Font");
 
             basicEffect = new BasicEffect(GraphicsDevice)
             {
@@ -58,8 +63,7 @@ namespace Asteroids
             ship = new Ship(10.5f, 0, 0, SPACE_WHITE);
             ship.Initialize(_graphics, basicEffect);
 
-            bullet = new Bullet(ship.Position.X, ship.Position.Y, ship.Angle, SPACE_WHITE);
-            bullet.Initialize(_graphics, basicEffect);
+            bullets = new List<Bullet>();
 
             asteroid = new Asteroid(5, 0, 0, 0, SPACE_WHITE);
             asteroid.Initialize(9, _graphics, basicEffect);
@@ -69,8 +73,29 @@ namespace Asteroids
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
             ship.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-            bullet.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                fire = true;
+            if (Keyboard.GetState().IsKeyUp(Keys.Space) && fire)
+            {
+                bullets.Add(new Bullet(ship.Position.X, ship.Position.Y, ship.Angle, SPACE_WHITE));
+                bullets[^1].Initialize(_graphics, basicEffect);
+                fire = false;
+            }
+
+            // TODO: Add a timer to bullets and asteroids if limit is reached they don't wrap around anymore
+            for (int i = bullets.Count - 1; i >= 0; i--)
+            {
+                bullets[i].Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+                if (bullets[i].Position.X < -25f || bullets[i].Position.Y < -25f || bullets[i].Position.X > 25f || bullets[i].Position.Y > 25f)
+                { 
+                    bullets.RemoveAt(i);
+                }
+            }
+
             base.Update(gameTime);
         }
 
@@ -81,10 +106,17 @@ namespace Asteroids
             /*RasterizerState rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;*/
-
             ship.Draw();
-            bullet.Draw();
+            foreach (Bullet bullet in bullets)
+            {
+                bullet.Draw();
+            }
             asteroid.Draw();
+
+            _spriteBatch.Begin();
+            _spriteBatch.DrawString(font, bullets.Count > 0 ? bullets[0].Position.Y.ToString() : "n/a", new Vector2(0, 0), Color.Red);
+            _spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
