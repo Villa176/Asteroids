@@ -7,9 +7,12 @@ namespace Asteroids.Objects
     class Asteroid : SpaceObject
     {
         public float Radius { get; set; }
-        public Asteroid(float radius, float x, float y, float angle, Color color) : base(x, y, angle, color)
+        public Asteroid(float radius, float x, float y, float dx, float dy, float angle, Color color) : base(x, y, angle, color)
         {
             Radius = radius;
+            Direction = new Vector3(dx, dy, 0);
+            Direction.Normalize();
+            Speed = 2f;// (float)(new Random().NextDouble()) * 3f + 1f;
         }
 
         public void Initialize(int vertexCount, GraphicsDeviceManager graphicsDeviceManager, BasicEffect basicEffect)
@@ -49,6 +52,12 @@ namespace Asteroids.Objects
         public void Update(float fElapsedTime)
         {
 
+            Angle += 0.25f * fElapsedTime;
+
+            if (Angle > 2 * MathF.PI) Angle -= 2 * MathF.PI;
+            else if (Angle < -2 * MathF.PI) Angle += 2 * MathF.PI;
+
+            Position += Direction * Speed * fElapsedTime;
         }
     }
 }

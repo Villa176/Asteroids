@@ -2,11 +2,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace Asteroids
 {
-    public class Asteroids : Game
+    public class Game : Microsoft.Xna.Framework.Game
     {
         private readonly GraphicsDeviceManager _graphics;
         BasicEffect basicEffect;
@@ -25,11 +26,11 @@ namespace Asteroids
         Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), WIN_WIDTH / WIN_HEIGHT, 0.01f, 100f);
 
         private Ship ship;
-        private Asteroid asteroid;
+        private List<Asteroid> asteroids;
         private List<Bullet> bullets;
         private bool fire = false;
 
-        public Asteroids()
+        public Game()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -60,13 +61,20 @@ namespace Asteroids
                 Projection = projection
             };
 
-            ship = new Ship(10.5f, 0, 0, SPACE_WHITE);
+            ship = new Ship(0, 0, 0, SPACE_WHITE);
             ship.Initialize(_graphics, basicEffect);
 
             bullets = new List<Bullet>();
 
-            asteroid = new Asteroid(5, 0, 0, 0, SPACE_WHITE);
-            asteroid.Initialize(9, _graphics, basicEffect);
+            Random rand = new Random();
+            asteroids = new List<Asteroid>();
+            for (int i = 0; i < 5; i++)
+            {
+                float px = rand.Next(51) >= 25 ? -1f : 1f;
+                float py = rand.Next(51) >= 25 ? -1f : 1f;
+                asteroids.Add(new Asteroid(5, px * ((float)(rand.NextDouble()) * 25f + 25f), py * ((float)(rand.NextDouble()) * 25f + 30f), -1f * px, -1f * py, 0, SPACE_WHITE));
+                asteroids[^1].Initialize(7, _graphics, basicEffect);
+            }
         }
 
         protected override void Update(GameTime gameTime)
@@ -96,6 +104,11 @@ namespace Asteroids
                 }
             }
 
+            for (int i = asteroids.Count - 1; i >= 0; i--)
+            {
+                asteroids[i].Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
+
             base.Update(gameTime);
         }
 
@@ -106,12 +119,18 @@ namespace Asteroids
             /*RasterizerState rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;*/
+
             ship.Draw();
+
             foreach (Bullet bullet in bullets)
             {
                 bullet.Draw();
             }
-            asteroid.Draw();
+
+            foreach (Asteroid asteroid in asteroids)
+            {
+                asteroid.Draw();
+            }
 
             _spriteBatch.Begin();
             _spriteBatch.DrawString(font, bullets.Count > 0 ? bullets[0].Position.Y.ToString() : "n/a", new Vector2(0, 0), Color.Red);

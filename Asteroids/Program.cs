@@ -7,7 +7,7 @@ namespace Asteroids
         [STAThread]
         static void Main()
         {
-            using (var game = new Asteroids())
+            using (var game = new Game())
                 game.Run();
         }
     }
