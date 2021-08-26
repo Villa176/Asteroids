@@ -5,6 +5,7 @@ namespace Asteroids.Objects
 {
     class SpaceObject
     {
+        Matrix m_world;
         public Color Color { get; set; }
         public float Scale { get; set; } = 0.5f;
         public float Angle { get; set; } = 0;
@@ -31,7 +32,8 @@ namespace Asteroids.Objects
             gDeviceManager.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             gDeviceManager.GraphicsDevice.Indices = indexBuffer;
 
-            bEffect.World = Matrix.CreateFromYawPitchRoll(0, 0, Angle) * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scale);
+            m_world = Matrix.CreateFromYawPitchRoll(0, 0, Angle) * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scale);
+            bEffect.World = m_world;
 
             foreach (EffectPass pass in bEffect.CurrentTechnique.Passes)
             {

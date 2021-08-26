@@ -29,6 +29,7 @@ namespace Asteroids
         private List<Asteroid> asteroids;
         private List<Bullet> bullets;
         private bool fire = false;
+        private bool crash = false;
 
         public Game()
         {
@@ -72,7 +73,7 @@ namespace Asteroids
             {
                 float px = rand.Next(51) >= 25 ? -1f : 1f;
                 float py = rand.Next(51) >= 25 ? -1f : 1f;
-                asteroids.Add(new Asteroid(5, px * ((float)(rand.NextDouble()) * 25f + 25f), py * ((float)(rand.NextDouble()) * 25f + 30f), -1f * px, -1f * py, 0, SPACE_WHITE));
+                asteroids.Add(new Asteroid(6, px * ((float)(rand.NextDouble()) * 25f + 25f), py * ((float)(rand.NextDouble()) * 25f + 30f), -1f * px, -1f * py, 0, SPACE_WHITE));
                 asteroids[^1].Initialize(7, _graphics, basicEffect);
             }
         }
@@ -80,12 +81,17 @@ namespace Asteroids
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+            }
 
             ship.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
                 fire = true;
+            }
+
             if (Keyboard.GetState().IsKeyUp(Keys.Space) && fire)
             {
                 bullets.Add(new Bullet(ship.Position.X, ship.Position.Y, ship.Angle, SPACE_WHITE));
@@ -102,11 +108,37 @@ namespace Asteroids
                 { 
                     bullets.RemoveAt(i);
                 }
+                else
+                {
+                    for (int j = asteroids.Count - 1; j >= 0; j--)
+                    {
+
+                        if (Math.Sqrt((asteroids[j].Position.X - bullets[i].Position.X) * (asteroids[j].Position.X - bullets[i].Position.X) + (asteroids[j].Position.Y - bullets[i].Position.Y) * (asteroids[j].Position.Y - bullets[i].Position.Y)) < asteroids[j].Radius)
+                        {
+                            if (asteroids[j].Radius >= 2f)
+                            {
+                                Random rand = new Random();
+                                for (int k = 0; k < 3; k++)
+                                {
+                                    float angle = (float)rand.NextDouble() * 6.283185f;
+                                    asteroids.Add(new Asteroid(asteroids[j].Radius / 2f, asteroids[j].Position.X, asteroids[j].Position.Y, MathF.Sin(angle), MathF.Cos(angle), 0, SPACE_WHITE));
+                                    asteroids[^1].Initialize(7, _graphics, basicEffect);
+                                }
+                            }
+                            asteroids.RemoveAt(j); 
+                            bullets.RemoveAt(i);  
+                            break; 
+                        }
+                    }
+                }
+
             }
 
+            crash = false;
             for (int i = asteroids.Count - 1; i >= 0; i--)
             {
                 asteroids[i].Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+                if (Math.Sqrt((asteroids[i].Position.X - ship.Position.X)*(asteroids[i].Position.X - ship.Position.X) + (asteroids[i].Position.Y - ship.Position.Y)* (asteroids[i].Position.Y - ship.Position.Y)) < asteroids[i].Radius) crash = true;
             }
 
             base.Update(gameTime);
@@ -133,7 +165,7 @@ namespace Asteroids
             }
 
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(font, bullets.Count > 0 ? bullets[0].Position.Y.ToString() : "n/a", new Vector2(0, 0), Color.Red);
+            _spriteBatch.DrawString(font, crash ? "you crashed" : "n/a", new Vector2(0, 0), Color.Red);
             _spriteBatch.End();
 
 
