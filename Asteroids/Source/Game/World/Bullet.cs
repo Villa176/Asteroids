@@ -9,7 +9,7 @@ namespace Asteroids
     class Bullet : Primitive2D
     {
         // communicate collosion events with parent
-        private readonly Primitive2D parent; 
+        private readonly Ship parent; 
 
         private bool despawn;
         private readonly Timer timer;
@@ -36,12 +36,16 @@ namespace Asteroids
             set { despawn = value; }
         }
 
-        public Bullet(float x, float y, Color color, Primitive2D _parent) : base(x, y)
+        public Bullet(float x, float y, Color color, Ship _parent) : base(x, y)
         {
             CreateBullet(color);
             timer = new Timer(3000);
             despawn = false;
             parent = _parent;
+
+            speed = 15f;
+            Angle = _parent.Angle;
+            direction = new Vector3(-MathF.Sin(Angle), MathF.Cos(Angle), 0);
         }
 
         private void CreateBullet(Color color)
@@ -73,6 +77,9 @@ namespace Asteroids
             {
                 base.Update();
                 timer.Update();
+
+                Position += Direction * Speed * (float)Globals.gameTime.ElapsedGameTime.TotalSeconds;
+
                 if (timer.TimeReached)
                 {
                     despawn = true;

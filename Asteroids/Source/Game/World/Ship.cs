@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Asteroids
 {
@@ -10,6 +11,7 @@ namespace Asteroids
         private const float MAX_SPEED = 0.3f;
         private const float ACCELERATION = 0.1f;
         private const float TURN_SPEED = 2.5f;
+        private List<Bullet> bullets;
 
         public float Speed { get; set; } = 0f;
         public Vector3 Direction { get; set; }
@@ -17,7 +19,9 @@ namespace Asteroids
         public Ship(float x, float y)  : base(x, y)
         {
             CreateShip();
+            bullets = new List<Bullet>();
             Scale = 0.5f;
+            Initialized = true;
         }
 
         private void CreateShip()
@@ -37,8 +41,6 @@ namespace Asteroids
             vertexBuffer.SetData(vertices);
             indexBuffer = new IndexBuffer(Globals.graphicsDevice.GraphicsDevice, typeof(short), indices.Length, BufferUsage.WriteOnly);
             indexBuffer.SetData(indices);
-
-            Initialized = true;
         }
 
         public override void Update()
@@ -46,6 +48,11 @@ namespace Asteroids
             base.Update();
 
             float fElapsedTime = (float)Globals.gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (Globals.keyboard.IsKeyPressed(Keys.Space))
+            {
+                bullets.Add(new Bullet(Position.X * Scale, Position.Y * Scale, Globals.SPACE_WHITE, this));
+            }
 
             if (Globals.keyboard.IsKeyHeld(Keys.W))
             {
@@ -72,6 +79,29 @@ namespace Asteroids
 
             if (Angle > 2f * MathF.PI) Angle -= 2f * MathF.PI;
             else if (Angle < -2f * MathF.PI) Angle += 2f * MathF.PI;
+
+            // update bullets
+            for ( int i = 0; i < bullets.Count; i++)
+            {
+                bullets[i].Update();
+
+                if (bullets[i].Despawn)
+                {
+                    bullets.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
+        public override void Draw()
+        {
+            base.Draw();
+
+            // draw bullets
+            foreach (Bullet bullet in bullets)
+            {
+                bullet.Draw();
+            }
         }
     }
+
 }
