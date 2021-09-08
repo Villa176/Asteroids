@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Asteroids
 {
-    public class Main : Game
+    public class Main : Microsoft.Xna.Framework.Game
     {
-        private World world;
+        private Game world;
 
         Matrix m_world = Matrix.CreateTranslation(0, 0, 0);
         Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 50), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
@@ -23,6 +23,7 @@ namespace Asteroids
         {
             Globals.graphicsDevice.PreferredBackBufferWidth = Globals.WINDOW_WIDTH;
             Globals.graphicsDevice.PreferredBackBufferHeight = Globals.WINDOW_HEIGHT;
+            Globals.graphicsDevice.GraphicsProfile = GraphicsProfile.HiDef;
             Globals.graphicsDevice.SynchronizeWithVerticalRetrace = false;
             Globals.graphicsDevice.ApplyChanges();
 
@@ -42,7 +43,7 @@ namespace Asteroids
             };
             Globals.keyboard = new CKeyboard();
             
-            world = new World();
+            world = new Game();
 
             System.Diagnostics.Debug.WriteLine("[CONTENT LOADED]");
         }
@@ -66,11 +67,7 @@ namespace Asteroids
         {
             GraphicsDevice.Clear(Globals.SPACE_BLACK);
 
-            Globals.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-
             world.Draw();
-
-            Globals.spriteBatch.End();
 
             base.Draw(gameTime);
         }

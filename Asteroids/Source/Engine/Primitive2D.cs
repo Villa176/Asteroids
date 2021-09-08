@@ -6,39 +6,46 @@ namespace Asteroids
 {
     class Primitive2D
     {
-        private bool isAlive;
-
-        public bool IsAlive
-        {
-            get { return isAlive; }
-            set { isAlive = value; }
-        }
-
-        public Vector3 Position { get; set; }
-        public float Scale { get; set; } = 1f;
-        public float Angle { get; set; } = 0f;
-
-        protected bool Initialized { get; set; } = false;
+        protected bool Initialized = false;
 
         protected int vertexCount;
         protected IndexBuffer indexBuffer;
         protected VertexBuffer vertexBuffer;
 
+        protected Vector3 position;
+        protected float scale = 1f;
+        protected float angle = 0f;
+
+        public float Angle
+        {
+            get { return angle; }
+            set { angle = value; }
+        }
+
+        public float Scale
+        {
+            get { return scale; }
+            set { scale = value; }
+        }
+
+        public Vector3 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
+
         public Primitive2D(float x, float y)
         {
-            Position = new Vector3(x, y, 0);
-            isAlive = true;
+            position = new Vector3(x, y, 0);
         }
 
         public Primitive2D(float x, float y, int numOfVertices, int radius, Color color, bool isUniformShape = true)
         {
             vertexCount = numOfVertices;
-            Position = new Vector3(x, y, 0);
+            position = new Vector3(x, y, 0);
 
             if (vertexCount < 3) throw new Exception("Cannot create random primitive with < 3 vertices");
             GeneratePrimitiveShape(radius, color, isUniformShape);
-
-            isAlive = true;
         }
 
         private void GeneratePrimitiveShape(int radius, Color color, bool isUniform)
@@ -81,11 +88,6 @@ namespace Asteroids
             Initialized = true;
         }
 
-        public virtual void Update()
-        {
-            if (!Initialized) return;
-        }
-
         public virtual void Draw()
         {
             if (!Initialized) return;
@@ -93,7 +95,7 @@ namespace Asteroids
             Globals.graphicsDevice.GraphicsDevice.SetVertexBuffer(vertexBuffer);
             Globals.graphicsDevice.GraphicsDevice.Indices = indexBuffer;
 
-            Globals.basicEffect.World = Matrix.CreateFromYawPitchRoll(0, 0, Angle) * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Scale);
+            Globals.basicEffect.World = Matrix.CreateFromYawPitchRoll(0, 0, angle) * Matrix.CreateTranslation(position) * Matrix.CreateScale(scale);
 
             foreach (EffectPass pass in Globals.basicEffect.CurrentTechnique.Passes)
             {

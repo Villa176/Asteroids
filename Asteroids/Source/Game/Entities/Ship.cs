@@ -1,20 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
+using System;
 
 namespace Asteroids
 {
-    class Ship : Primitive2D
+    class Ship : Entity
     {
         private const float MAX_SPEED = 0.3f;
         private const float ACCELERATION = 0.1f;
         private const float TURN_SPEED = 2.5f;
         private List<Bullet> bullets;
-
-        public float Speed { get; set; } = 0f;
-        public Vector3 Direction { get; set; }
 
         public Ship(float x, float y)  : base(x, y)
         {
@@ -43,42 +40,40 @@ namespace Asteroids
             indexBuffer.SetData(indices);
         }
 
-        public override void Update()
+        public void Update()
         {
-            base.Update();
-
             float fElapsedTime = (float)Globals.gameTime.ElapsedGameTime.TotalSeconds;
 
             if (Globals.keyboard.IsKeyPressed(Keys.Space))
             {
-                bullets.Add(new Bullet(Position.X * Scale, Position.Y * Scale, Globals.SPACE_WHITE, this));
+                bullets.Add(new Bullet(position.X * Scale, position.Y * scale, Globals.SPACE_WHITE, this));
             }
 
             if (Globals.keyboard.IsKeyHeld(Keys.W))
             {
-                if (Speed < MAX_SPEED) Speed += ACCELERATION * fElapsedTime;
-                Direction = new Vector3(-MathF.Sin(Angle), MathF.Cos(Angle), 0);
-                Position += Direction * Speed;
+                if (speed < MAX_SPEED) speed += ACCELERATION * fElapsedTime;
+                direction = new Vector3(-MathF.Sin(angle), MathF.Cos(angle), 0);
+                position += direction * speed;
             }
-            else if (Speed > 0)
+            else if (speed > 0)
             {
-                Speed -= 0.5f * ACCELERATION * fElapsedTime;
-                Direction = new Vector3(-MathF.Sin(Angle), MathF.Cos(Angle), 0);
-                Position += Direction * Speed;
+                speed -= 0.5f * ACCELERATION * fElapsedTime;
+                direction = new Vector3(-MathF.Sin(angle), MathF.Cos(angle), 0);
+                position += direction * speed;
             }
 
             if (Globals.keyboard.IsKeyHeld(Keys.A))
             {
-                Angle += TURN_SPEED * fElapsedTime;
+                angle += TURN_SPEED * fElapsedTime;
             }
 
             if (Globals.keyboard.IsKeyHeld(Keys.D))
             {
-                Angle -= TURN_SPEED * fElapsedTime;
+                angle -= TURN_SPEED * fElapsedTime;
             }
 
-            if (Angle > 2f * MathF.PI) Angle -= 2f * MathF.PI;
-            else if (Angle < -2f * MathF.PI) Angle += 2f * MathF.PI;
+            if (angle > 2f * MathF.PI) angle -= 2f * MathF.PI;
+            else if (angle < -2f * MathF.PI) angle += 2f * MathF.PI;
 
             // update bullets
             for ( int i = 0; i < bullets.Count; i++)

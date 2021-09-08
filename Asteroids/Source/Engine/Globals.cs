@@ -25,6 +25,6 @@ namespace Asteroids
         public static int WINDOW_HEIGHT = 900;
 
         public static Color SPACE_BLACK = new Color(0, 10, 30);
-        public static Color SPACE_WHITE = new Color(245, 255, 250);
+        public static Color SPACE_WHITE = new Color(195, 205, 200);
     }
 }
