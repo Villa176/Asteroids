@@ -5,24 +5,24 @@ namespace Asteroids
     class Game
     {
         private readonly Ship player;
-        private readonly Asteroid asteroid;
+        private readonly AsteroidManager am;
 
         public Game()
         {
             player = new Ship(0, 0);
-            asteroid = new Asteroid(0, 0, 9, 3f, Globals.SPACE_WHITE);
+            am = new AsteroidManager();
         }
 
         public virtual void Update()
         {
             player.Update();
-            asteroid.Update();
+            am.Update();
         }
 
         public virtual void Draw()
         {
             player.Draw();
-            asteroid.Draw();
+            am.Draw();
         }
     }
 }

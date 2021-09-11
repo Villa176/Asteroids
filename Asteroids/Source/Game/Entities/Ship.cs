@@ -23,12 +23,13 @@ namespace Asteroids
 
         private void CreateShip()
         {
+            Color shipColor = Globals.HIGHLIGHT_YELLOW;
             vertexCount = 3;
 
             VertexPositionColor[] vertices = new VertexPositionColor[3];
-            vertices[0] = new VertexPositionColor(new Vector3(0, 1f, 0), Globals.SPACE_WHITE);
-            vertices[1] = new VertexPositionColor(new Vector3(0.5f, -0.5f, 0), Globals.SPACE_WHITE);
-            vertices[2] = new VertexPositionColor(new Vector3(-0.5f, -0.5f, 0), Globals.SPACE_WHITE);
+            vertices[0] = new VertexPositionColor(new Vector3(0, 1f, 0), shipColor);
+            vertices[1] = new VertexPositionColor(new Vector3(0.5f, -0.5f, 0), shipColor);
+            vertices[2] = new VertexPositionColor(new Vector3(-0.5f, -0.5f, 0), shipColor);
 
             vertexBuffer = new VertexBuffer(Globals.graphicsDevice.GraphicsDevice, typeof(VertexPositionColor), vertices.Length, BufferUsage.WriteOnly);
             
@@ -46,7 +47,7 @@ namespace Asteroids
 
             if (Globals.keyboard.IsKeyPressed(Keys.Space))
             {
-                bullets.Add(new Bullet(position.X * Scale, position.Y * scale, Globals.SPACE_WHITE, this));
+                bullets.Add(new Bullet(position.X * Scale, position.Y * scale, Globals.HIGHLIGHT_YELLOW, this));
             }
 
             if (Globals.keyboard.IsKeyHeld(Keys.W))
