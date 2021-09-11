@@ -39,7 +39,7 @@ namespace Asteroids
             position = new Vector3(x, y, 0);
         }
 
-        public Primitive2D(float x, float y, int numOfVertices, int radius, Color color, bool isUniformShape = true)
+        public Primitive2D(float x, float y, int numOfVertices, float radius, Color color, bool isUniformShape = true)
         {
             vertexCount = numOfVertices;
             position = new Vector3(x, y, 0);
@@ -48,7 +48,7 @@ namespace Asteroids
             GeneratePrimitiveShape(radius, color, isUniformShape);
         }
 
-        private void GeneratePrimitiveShape(int radius, Color color, bool isUniform)
+        private void GeneratePrimitiveShape(float radius, Color color, bool isUniform)
         {
             Random rand = new Random();
             float angleInc = (2f * MathF.PI) / vertexCount;
@@ -62,7 +62,8 @@ namespace Asteroids
                 }
                 else
                 {
-                    float randFloat = isUniform ? 1f : (float)rand.NextDouble() * 2f;
+                    float posneg = (float)rand.NextDouble() <= 0.5f ? -1 : 1;
+                    float randFloat = isUniform ? 1f : posneg * (float)rand.NextDouble() * 1.25f;
                     float offset = randFloat + radius;
                     vertices[i] = new VertexPositionColor(new Vector3(-MathF.Sin(angleInc * (float)(i - 1)), MathF.Cos(angleInc * (float)(i - 1)), 0) * offset, color);
                 }

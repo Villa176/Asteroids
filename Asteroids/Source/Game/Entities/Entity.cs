@@ -30,7 +30,7 @@ namespace Asteroids
         {
         }
 
-        public Entity(float x, float y, int numOfVertices, int radius, Color color, bool isUniformShape = true) : base(x, y, numOfVertices, radius, color, isUniformShape)
+        public Entity(float x, float y, int numOfVertices, float radius, Color color, bool isUniformShape = true) : base(x, y, numOfVertices, radius, color, isUniformShape)
         {
         }
 

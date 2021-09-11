@@ -1,4 +1,6 @@
-﻿namespace Asteroids
+﻿using System.Collections.Generic;
+
+namespace Asteroids
 {
     class Game
     {
@@ -8,7 +10,7 @@
         public Game()
         {
             player = new Ship(0, 0);
-            asteroid = new Asteroid(0, 0, 8, 1, Globals.SPACE_WHITE);
+            asteroid = new Asteroid(0, 0, 9, 3f, Globals.SPACE_WHITE);
         }
 
         public virtual void Update()

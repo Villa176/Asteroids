@@ -86,6 +86,12 @@ namespace Asteroids
                     i--;
                 }
             }
+
+            // check bounds
+            if (position.X > 42f) position.X = -42f;
+            if (position.X < -42f) position.X = 42f;
+            if (position.Y > 42f) position.Y = -42f;
+            if (position.Y < -42f) position.Y = 42f;
         }
         public override void Draw()
         {
