@@ -1,83 +1,77 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Asteroids
 {
-    public class Main : Microsoft.Xna.Framework.Game
+    public class Asteroids : Game
     {
-        private Game world;
+        GameWorld game_world;
 
-        Matrix m_world = Matrix.CreateTranslation(0, 0, 0);
-        Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, 50), new Vector3(0, 0, 0), new Vector3(0, 1, 0));
-        Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), Globals.WINDOW_WIDTH / Globals.WINDOW_HEIGHT, 1f, 1000f);
-
-        public Main()
+        public Asteroids()
         {
-            Globals.graphicsDevice = new GraphicsDeviceManager(this);
+            Globals.Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
-            Globals.graphicsDevice.PreferredBackBufferWidth = Globals.WINDOW_WIDTH;
-            Globals.graphicsDevice.PreferredBackBufferHeight = Globals.WINDOW_HEIGHT;
-            Globals.graphicsDevice.GraphicsProfile = GraphicsProfile.HiDef;
-            Globals.graphicsDevice.SynchronizeWithVerticalRetrace = false;
-            Globals.graphicsDevice.ApplyChanges();
+            Globals.Graphics.PreferredBackBufferWidth = Globals.SCREEN_WIDTH;
+            Globals.Graphics.PreferredBackBufferHeight = Globals.SCREEN_HEIGHT;
+            Globals.Graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            Globals.Graphics.SynchronizeWithVerticalRetrace = false;
+            Globals.Graphics.ApplyChanges();
+
+            Globals.Basic = new BasicEffect(Globals.Graphics.GraphicsDevice)
+            {
+                View =          Globals.VIEW_MATRIX,
+                Projection =    Globals.PROJECTION_MATRIX,
+                World =         Globals.WORLD_MATRIX,
+
+                VertexColorEnabled = true
+            };
 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            Globals.content = this.Content;
-            Globals.spriteBatch = new SpriteBatch(GraphicsDevice);
-            Globals.basicEffect = new BasicEffect(GraphicsDevice)
-            {
-                VertexColorEnabled = true,
-                World = m_world,
-                View = view,
-                Projection = projection
-            };
-            Globals.keyboard = new CKeyboard();
-            
-            world = new Game();
-
-            System.Diagnostics.Debug.WriteLine("[CONTENT LOADED]");
+            Globals.Batch = new SpriteBatch(Globals.Graphics.GraphicsDevice);
+            Globals.Font = Content.Load<SpriteFont>(@"Fonts/GameFont");
+            game_world = new GameWorld();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            Globals.gameTime = gameTime;
-            Globals.keyboard.Update();
-
-            if (Globals.keyboard.IsKeyPressed(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            world.Update();
+            Globals.KBInput.Update();
 
-            Globals.keyboard.UpdatePrev();
+            game_world.Update(gameTime);
+
+            Globals.KBInput.UpdatePrev();
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Globals.SPACE_BLACK);
+            Globals.Graphics.GraphicsDevice.Clear(Globals.SPACE_BLACK);
 
-            world.Draw();
+            game_world.Draw();
 
             base.Draw(gameTime);
         }
     }
-
     public static class Program
     {
+        [STAThread]
         static void Main()
         {
-            using var game = new Main();
+            using var game = new Asteroids();
             game.Run();
         }
     }

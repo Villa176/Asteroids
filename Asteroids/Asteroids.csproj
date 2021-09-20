@@ -6,16 +6,18 @@
     <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <Win32Resource />
+    <StartupObject>Asteroids.Program</StartupObject>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
+    <None Remove="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon.bmp" />
+    <EmbeddedResource Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
@@ -28,7 +30,6 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\Audio\" />
     <Folder Include="Content\Fonts\" />
   </ItemGroup>
 </Project>

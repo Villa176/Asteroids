@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Asteroids
 {
-    class CKeyboard
+    class KeyboardInput
     {
         public KeyboardState state;
         public KeyboardState prevState;

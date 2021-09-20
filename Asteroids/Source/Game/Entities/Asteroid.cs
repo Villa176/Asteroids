@@ -1,123 +1,103 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using System;
 
 namespace Asteroids
 {
-    class Asteroid : Entity
+    class Asteroid : Entity2D
     {
-        private float BORDER_LIMIT = 23f;
+        private readonly float ROTATION_SPEED;
+        private readonly float MAX_HEALTH;
+        private readonly Timer timer;
 
-        private bool spin;
-        private float spinSpeed;
-        private bool despawn;
-        private Timer timer;
-        private float radius;
-        private bool isOnScreen;
-
-        public bool IsOnScreen
+        public Asteroid(Vector3 entity_position, float collision_radius, float direction_angle_rad, float initial_speed = 3f, float initial_health = 100f, float time_alive = 30f) : 
+            base(entity_position, collision_radius, direction_angle_rad, initial_speed)
         {
-            get { return isOnScreen; }
-            set { isOnScreen = value; }
+            type = ENTITY_TYPE.ASTEROID;
+
+            timer = new Timer(time_alive);
+            MAX_HEALTH = initial_health;
+            health = initial_health;
+
+            Random random = new Random();
+            float posneg = random.Next(2) == 1 ? -1f : 1f;
+            ROTATION_SPEED = (float)(posneg * random.NextDouble() * 0.035f);
+
+            float min_rad = collision_radius / 2f;
+            float max_rad = collision_radius + min_rad;
+            Vector3[] shape_vertices = GenerateAsteroidVertices(min_rad, max_rad, 8);
+            InitializeShape(shape_vertices, Globals.SPACE_WHITE, false);
         }
 
-        public float Radius
+        public override void Update(GameTime game_time, Entity2D player)
         {
-            get { return radius; }
-            set { radius = value; }
-        }
+            if (!IsAlive) return;
 
-        public Timer Timer
-        {
-            get { return timer; }
-            private set { timer = value; }
-        }
+            base.Update(game_time);
 
-        public bool Despawn
-        {
-            get { return despawn; }
-            set { despawn = value; }
-        }
+            timer.Update(game_time);
 
-        public float SpinSpeed
-        {
-            get { return spinSpeed; }
-            set { spinSpeed = value; }
-        }
-
-        public bool Spin
-        {
-            get { return spin; }
-            set { spin = value; }
-        }
-
-        public Asteroid(float x, float y, int numOfVertices, float _radius, Color color) : base(x, y, numOfVertices, _radius, color, false)
-        {
-            Random rand = new Random();
-
-            despawn = false;
-            isOnScreen = false;
-            timer = new Timer(20000);
-            
-            spin = true;
-            float spinDirection = rand.Next(10) < 5 ? -1f : 1f; 
-            spinSpeed = (float)rand.NextDouble() * spinDirection;
-
-            scale = 1f;
-            radius = _radius;
-            BORDER_LIMIT /= scale;
-
-            angle = (float)(rand.NextDouble() * 2 * Math.PI);
-            speed = (float)(rand.NextDouble() * 2 + 2) / scale;
-            direction = new Vector3(-MathF.Sin(angle), MathF.Cos(angle), 0);
-        }
-
-        public void Update()
-        {
-            if (despawn && !isOnScreen || health <= 0) return;
-            timer.Update();
-            if (spin)
+            if (Health <= 0)
             {
-                float fElapsedTime = (float)Globals.gameTime.ElapsedGameTime.TotalSeconds;
-
-                position += direction * speed * fElapsedTime;
-                angle += spinSpeed * fElapsedTime;
-
-                if (angle > 2f * MathF.PI) angle -= 2f * MathF.PI;
-                else if (angle < -2f * MathF.PI) angle += 2f * MathF.PI;
+                IsAlive = false;
+                AddChildren(3);
+                return;
+            }
+            else if (timer.Finished)
+            {
+                if (Helpers.NotOnScreen(position, radius))
+                {
+                    IsAlive = false;
+                }
             }
 
-            // check bounds
-            isOnScreen = true;
+            position += direction;
+            angle += ROTATION_SPEED;
 
-            if (position.X > BORDER_LIMIT + radius)
+            if (Helpers.CirclesIntersect(player.Position, player.Radius, position, radius))
             {
-                if (!despawn) { position.X = -BORDER_LIMIT - radius; }
-                else isOnScreen = false;
-            }
-            else if (position.X < -BORDER_LIMIT - radius)
-            {
-                if (!despawn) { position.X = BORDER_LIMIT + radius; }
-                else isOnScreen = false;
+                player.Health = 0;
             }
 
-            if (position.Y > BORDER_LIMIT + radius)
-            {
-                if (!despawn) { position.Y = -BORDER_LIMIT - radius; }
-                else isOnScreen = false;
-            }
-            else if (position.Y < -BORDER_LIMIT - radius)
-            {
-                if (!despawn) { position.Y = BORDER_LIMIT + radius; }
-                else isOnScreen = false;     
-            }
-
-            if (timer.TimeReached) despawn = true;
+            if (!timer.Finished)
+                WrapAround();
         }
 
         public override void Draw()
         {
-            if (despawn && !isOnScreen || health <= 0) return;
-            base.Draw();
+            if (IsAlive) base.Draw();
+        }
+
+        private void AddChildren(int n)
+        {
+            if (Health <= 0 && radius >= 20f)
+            {
+                Random random = new Random();
+                for (int i = 0; i < n; i++)
+                {
+                    float new_angle = (float)(random.NextDouble() * 2 * Math.PI);
+                    Globals.AddEntities(new Asteroid(new Vector3(position.X, position.Y, 0), radius / 2f, new_angle, speed, MAX_HEALTH / 2f));
+                }
+            }
+        }
+
+        private Vector3[] GenerateAsteroidVertices(float min_radius, float max_radius, int num_of_vertices)
+        {
+            Vector3[] asteroid_vertices = new Vector3[num_of_vertices];
+
+            float angle_interval = (2f * MathF.PI) / num_of_vertices;
+            Random random = new Random();
+
+            for (int i = 0; i < num_of_vertices; i++)
+            {
+                float c_angle = angle_interval * i;
+
+                float magnitude = ((float)random.NextDouble() * (max_radius - min_radius)) + min_radius;
+
+                asteroid_vertices[i] = new Vector3(-MathF.Sin(c_angle), MathF.Cos(c_angle), 0) * magnitude;
+            }
+
+            return asteroid_vertices;
         }
     }
 }
