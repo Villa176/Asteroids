@@ -59,6 +59,7 @@ namespace Asteroids
         public float Angle
         {
             get { return angle; }
+            set { angle = value; }
         }
         public float Health 
         {

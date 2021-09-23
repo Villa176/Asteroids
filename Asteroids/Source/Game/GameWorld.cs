@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using System.Text;
 using System;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Asteroids
 {
@@ -14,6 +16,8 @@ namespace Asteroids
         // ui
         List<Primitive2D> lives;
         SpawnManager spawner;
+
+        bool game_start = false;
 
         public GameWorld()
         {
@@ -35,59 +39,120 @@ namespace Asteroids
 
         public void Update(GameTime game_time)
         {
-            spawner.Update(game_time, player.Score);
-
-            for (int i = 0; i < projectiles.Count; i++)
+            if (!game_start)
             {
-                if (projectiles[i].Despawn)
+                if (Globals.KBInput.IsKeyPressed(Keys.Space)) game_start = true;
+            }
+            else
+            {
+                spawner.Update(game_time, player.Score);
+
+                for (int i = 0; i < projectiles.Count; i++)
                 {
-                    projectiles.RemoveAt(i);
-                    i--;
+                    if (projectiles[i].Despawn)
+                    {
+                        projectiles.RemoveAt(i);
+                        i--;
+                    }
+                    else
+                    {
+                        projectiles[i].Update(game_time, enemies);
+                    }
                 }
-                else
+
+                player.Update(game_time);
+
+                for (int i = 0; i < enemies.Count; i++)
                 {
-                    projectiles[i].Update(game_time, enemies);
+                    if (!enemies[i].IsAlive)
+                    {
+                        enemies.RemoveAt(i);
+                        i--;
+                    }
+                    else
+                    {
+                        enemies[i].Update(game_time, (Entity2D)player.Ship);
+                    }
+                }
+
+                UpdatePlayerLives();
+            
+                if (player.Lives <= 0)
+                {
+                    if (Globals.KBInput.IsKeyPressed(Keys.Space)) Restart();
                 }
             }
-
-            player.Update(game_time);
-
-            for (int i = 0; i < enemies.Count; i++)
-            {
-                if (!enemies[i].IsAlive)
-                {
-                    enemies.RemoveAt(i);
-                    i--;
-                }
-                else
-                {
-                    enemies[i].Update(game_time, (Entity2D)player.Ship);
-                }
-            }
-
-            UpdatePlayerLives();
         }
 
         public void Draw()
         {
-            foreach (Projectile2D projectile in projectiles)
+            if (!game_start)
             {
-                projectile.Draw();
+                float center_x = Globals.SCREEN_WIDTH / 2;
+                float center_y = Globals.SCREEN_HEIGHT / 2;
+
+                Globals.Batch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp);
+
+                Globals.Batch.DrawString(Globals.Font, "ASTEROIDS", new Vector2(center_x, center_y), Globals.SPACE_WHITE, 0, Globals.Font.MeasureString("ASTEROIDS") / 2, 3, SpriteEffects.None, 0);
+
+                Globals.Batch.DrawString(Globals.Font, "PRESS SPACE TO START", new Vector2(center_x - 100, center_y + 35), Globals.SPACE_RED);
+                Globals.Batch.End();
+
             }
-
-            player.Draw();
-
-            foreach (Entity2D entity in enemies)
+            else
             {
-                entity.Draw();
+                foreach (Projectile2D projectile in projectiles)
+                {
+                    projectile.Draw();
+                }
+
+                player.Draw();
+
+                foreach (Entity2D entity in enemies)
+                {
+                    entity.Draw();
+                }
+
+                // draw player score
+                Globals.Batch.Begin();
+                if (player.Lives <= 0)
+                {
+                    float center_x = Globals.SCREEN_WIDTH / 2;
+                    float center_y = Globals.SCREEN_HEIGHT / 2;
+                
+                    Globals.Batch.DrawString(Globals.Font, "GAME OVER", new Vector2(center_x - 45, center_y - 25), Globals.SPACE_RED);
+                
+                    Globals.Batch.DrawString(Globals.Font, "SCORE: " + player.Score.ToString(), new Vector2(center_x - 60, center_y), Globals.SPACE_RED);
+
+                    Globals.Batch.DrawString(Globals.Font, "PRESS SPACE TO RESTART", new Vector2(center_x - 110, center_y + 35), Globals.SPACE_RED);
+                }
+                else
+                {
+                    Globals.Batch.DrawString(Globals.Font, player.Score.ToString(), new Vector2(Globals.SCREEN_WIDTH - player.Score.ToString().Length * 10 - 12, 10), Globals.SPACE_RED);
+                }
+                Globals.Batch.End();
+
+                DrawPlayerLives();
             }
+        }
 
-            // draw player score
-            Globals.Batch.Begin();
-            Globals.Batch.DrawString(Globals.Font, player.Score.ToString(), new Vector2(Globals.SCREEN_WIDTH - player.Score.ToString().Length * 10 - 12, 10), Globals.SPACE_RED);
-            Globals.Batch.End();
+        private void Restart()
+        {
+            player.Lives = 3;
+            player.Score = 0;
 
-            DrawPlayerLives();
+            player.Ship.Position = Vector3.Zero;
+            player.Ship.Health = 100;
+            player.Ship.IsAlive = true;
+            player.Ship.Angle = 0;
+            player.Ship.Speed = 0;
+
+
+            projectiles.Clear();
+            enemies.Clear();
+
+            spawner = new SpawnManager();
+            CreatePlayerLives(player.Lives, Globals.SPACE_RED);
         }
 
         private void CreateProjectile(object projectile)
