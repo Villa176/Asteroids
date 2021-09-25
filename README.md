@@ -1,5 +1,5 @@
 # Asteroids
-My attempt at recreating the classic. 
+The classic space shooter recreated with Microsoft XNA. 
 
 ![GAMEPLAY GIF](./img/gameplay.gif)
 
