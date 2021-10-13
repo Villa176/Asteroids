@@ -1,5 +1,5 @@
 # Asteroids
-The classic space shooter recreated with Microsoft XNA. 
+The classic space shooter recreated with MonoGame. 
 
 ![GAMEPLAY GIF](./img/gameplay.gif)
 
