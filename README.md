@@ -1,5 +1,5 @@
 # Asteroids
-The classic space shooter recreated with MonoGame. 
+The classic space shooter created with MonoGame. 
 
 ![GAMEPLAY GIF](./img/gameplay.gif)
 
